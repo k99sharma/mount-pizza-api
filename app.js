@@ -16,6 +16,7 @@ mongoose.connect('mongodb://localhost:27017/mount-pizza')
 
 // importing routes
 const usersRouter = require('./routes/users');
+const toppingRouter = require('./routes/Items/toppings');
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // routes paths
 app.use('/mountpizza/users', usersRouter);
+app.use('/mountpizza/items/toppings', toppingRouter);
 
 module.exports = app;

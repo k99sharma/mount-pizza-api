@@ -18,6 +18,7 @@ mongoose.connect('mongodb://localhost:27017/mount-pizza')
 const usersRouter = require('./routes/users');
 const toppingRouter = require('./routes/Items/toppings');
 const pizzaRouter = require('./routes/Items/pizzas');
+const orderRouter = require('./routes/orders');
 
 const app = express();
 
@@ -32,5 +33,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/mountpizza/users', usersRouter);
 app.use('/mountpizza/items/toppings', toppingRouter);
 app.use('/mountpizza/items/pizzas', pizzaRouter);
+app.use('/mountpizza/orders', orderRouter);
 
 module.exports = app;

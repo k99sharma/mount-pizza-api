@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 // importing middlewares
-const { catchErrors } = require('../configs/errorHandlers');
+const { catchErrors } = require('../../configs/errorHandlers');
 
 // importing controller
 const topping = require('../../controllers/Items/toppings');

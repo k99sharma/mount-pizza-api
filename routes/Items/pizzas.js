@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 // importing middlewares
-const { catchErrors } = require('../configs/errorHandlers');
+const { catchErrors } = require('../../configs/errorHandlers');
 
 // importing controllers
 const pizza = require('../../controllers/Items/pizzas');

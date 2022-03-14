@@ -14,6 +14,10 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    orders: {
+        type: Array,
+        required: true,
+    },
     role: {
         type: String,
         default: 'user',

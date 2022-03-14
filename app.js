@@ -1,38 +1,78 @@
-// importing modules
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const mongoose = require('mongoose');
+const express = require("express");
+const compression = require("compression");
+const morgan = require("morgan");
+const helmet = require("helmet");
 
-// database configuration
-mongoose.connect('mongodb://localhost:27017/mount-pizza')
-    .then(()=>{
-        console.log('Database Connected!');
-    })
-    .catch(err => {
-        console.log(err);
-    })
-
-// importing routes
-const usersRouter = require('./routes/users');
-const toppingRouter = require('./routes/Items/toppings');
-const pizzaRouter = require('./routes/Items/pizzas');
-const orderRouter = require('./routes/orders');
+const { NODE_ENV, PORT } = require('./configs/index');
+const { notFound, sendErrors } = require("./configs/errorHandlers");
 
 const app = express();
 
-// middlewares
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+const cors = require("cors");
+require("dotenv").config();
+require("./configs/dbConnection");
 
-// routes paths
-app.use('/mountpizza/users', usersRouter);
-app.use('/mountpizza/items/toppings', toppingRouter);
-app.use('/mountpizza/items/pizzas', pizzaRouter);
-app.use('/mountpizza/orders', orderRouter);
 
-module.exports = app;
+module.exports = () => {
+    app.use(compression());
+    app.use(morgan("dev"));
+    app.use(helmet());
+    app.use(cors({ exposedHeaders: "x-auth-token" }));
+    
+    app.use(express.urlencoded({
+        limit: "50mb",
+        extended: true,
+        parameterLimit: 1000000,
+    }));
+
+    app.use(express.json({
+        limit: "50mb",
+        extended: true,
+        parameterLimit: 1000000,
+    }));
+
+    // setting production errors
+    if(NODE_ENV === "production")
+        console.log = console.warn = console.error = () => {};
+
+    // setting up routes
+    app.use('/mountpizza/users', require('./routes/users'));
+    app.use('/mountpizza/items/toppings', require('./routes/Items/toppings'));
+    app.use('/mountpizza/items/pizzas', require('./routes/Items/pizzas'));
+    app.use('/mountpizza/orders', require('./routes/orders'));
+    
+    app.use('*', notFound);   // 404 route: NOT FOUND
+
+    // error handlers
+    app.use(sendErrors);
+
+    // allowing headers
+    app.use((req, res, next) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header("Access-Control-Allow-Origin", "*");
+		res.header(
+			"Access-Control-Allow-Headers",
+			"Origin, X-Requested-With, Content-Type, Accept"
+		);
+		res.header("Access-Control-Allow-Credentials", true);
+		res.header(
+			"Access-Control-Allow-Methods",
+			"GET, POST, PUT, DELETE, PATCH"
+		);
+		next();
+    });
+
+    // server function 
+    const startServer = async () => {
+        try{
+            app.listen(PORT || 3000);
+            console.info(`NODE_ENV: ${NODE_ENV} server is up and runnning on PORT: ${PORT}`);
+        }
+        catch(err){
+            console.info("Error in running server.");
+        }
+    } 
+
+    // starting server
+    startServer();
+}

@@ -1,6 +1,4 @@
-const res = require("express/lib/response");
-
-const { OK } = required('./helpers');
+const { OK } = require("./statusCodes");
 
 // function to send error
 module.exports.sendError = (req, message, status ) => {

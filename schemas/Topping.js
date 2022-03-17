@@ -6,14 +6,18 @@ const toppingSchema = new Schema({
         type: String,
         required: true,
     },
-    category: {
-        type: String,
-        default: 'veg',
-    },
     price: {
         type: Number,
         required: true,
     },
+    category: {
+        type: String,
+        enum: ["VEG", "NONVEG"],
+        default: "VEG",
+    }
+},
+{
+    timestamps: true,
 });
 
 const topping = mongoose.model('Topping', toppingSchema);

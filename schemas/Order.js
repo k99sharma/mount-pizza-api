@@ -2,31 +2,25 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    date: {
-        type: Date,
-        default: Date.now(),
-        required: true,
-    },
-    pizzas: [{
-        pizzaID: {
-            type: String,
-        },
-        additionalToppings: [{
-            toppingsID: String,
-        }],
-        quantity: {
-            type: Number,
-        },
-    }],
-    customerId: {
+    customerId : {
         type: String,
         required: true,
     },
-    // need to be calculated
-    amount: {
+    items: {
+        type: Array,
+        required: true,
+    },
+    orderPrice: {
         type: Number,
         required: true,
     },
+    orderDate: {
+        type: Date,
+        default: Date.now(),
+    },
+},
+{
+    timestamps: true,
 });
 
 const order = mongoose.model('Order', orderSchema);

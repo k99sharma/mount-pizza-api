@@ -3,22 +3,66 @@ const user = require('../schemas/User');
 const { findOneAndUpdate } = require('../schemas/User');
 const User = require('../schemas/User');
 
+// importing error handlers
+const {
+    sendError,
+    generateHash,
+    setToken,
+    sendSuccess,
+} = require('../utilities/helpers');
+
+// status codes
+const {
+    OK,
+    BAD_REQUEST,
+    FORBIDDEN,
+    NOT_AUTHORIZED,
+} = require('../utilities/statusCodes');
+
+// HASH LENGTH
+const {
+    USER_HASH_LENGTH
+} = require('../configs/index');
+
 // POST: cb for creating user
 const createUser = async (req, res) => {
-    try{
-        const newUser = new User(req.body);
+    const {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        password,
+        role,
+    } = req.body;
 
-        await newUser.save()
-            .then(()=>{
-                res.status(201).send('User is created');
-            })
-            .catch(err => {
-                console.log(err);
-            })
-    }
-    catch(error){
-        console.log(error);
-    }
+    // checking if this user is already in system
+    const user = await User.findOne({
+        email: email,
+    });
+
+    if(user)
+        return sendError(res, "User already registered", BAD_REQUEST);
+
+    // creating new user
+    let newUser = new User({
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phoneNumber: phoneNumber,
+        password: password,
+        role: role,
+    });
+
+    // save new user in database
+    newUser = await newUser.save();
+    
+    // generate token
+    const token = await newUser.generateAuthToken();
+
+    // set token entry in database
+    setToken(String(newUser._id), token);
+
+    return sendSuccess(res, newUser, token);
 }
 
 // GET: cb for get user

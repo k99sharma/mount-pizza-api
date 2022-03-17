@@ -12,7 +12,8 @@ const toppingSchema = new Schema({
     },
     category: {
         type: String,
-        enum: ["veg", "nonveg"],
+        enum: ["VEG", "NONVEG"],
+        default: "VEG",
     }
 },
 {

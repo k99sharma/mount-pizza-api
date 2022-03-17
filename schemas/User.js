@@ -32,13 +32,12 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
-        default: 'cust',
-        enum: ['cust', 'admin'],
+        default: 'CUST',
+        enum: ['CUST', 'ADMIN'],
         required: true,
     },
     orderHistory: {
         type: Array,
-        required: true,
     },
     lastLogin: { type: Date, default: Date.now },
     lastActiveAt: { type: Date },

@@ -13,7 +13,8 @@ const pizzaSchema = new Schema({
     style: {
         type: String,
         required: true,
-        enum: ["custom", "default"],
+        enum: ["CUSTOM", "DEFAULT"],
+        default: "DEFAULT",
     },
     price: {
         type: Number,
@@ -22,7 +23,7 @@ const pizzaSchema = new Schema({
     crustType: {
         type: String,
         required: true,
-        enum: ["small", "medium", "large"]
+        enum: ["SMALL", "MEDIUM", "LARGE"]
     }
 },
 {

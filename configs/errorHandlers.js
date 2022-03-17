@@ -23,7 +23,7 @@ module.exports.notFound = (req, res) => {
 
 // custom made error handler
 module.exports.sendErrors = (err, req, res, next) => {
-    // loggin on console backend
+    // logging on console backend
     console.log(err);
 
     // sending to user on frontend

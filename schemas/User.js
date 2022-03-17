@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const { JWT_PRIVATE_KEY } = require('../configs/index');
+const { JWT_PRIVATE_KEY, USER_HASH_LENGTH } = require('../configs/index');
 
 const { generateHash } = require('../utilities/helpers');
 
@@ -22,6 +22,10 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    phoneNumber: {
+        type: String,
+        required: true,
+    },
     password: {
         type: String,
         required: true,
@@ -32,7 +36,7 @@ const userSchema = new Schema({
         enum: ['cust', 'admin'],
         required: true,
     },
-    orders: {
+    orderHistory: {
         type: Array,
         required: true,
     },
@@ -72,7 +76,7 @@ userSchema.methods.generateAuthToken = async () => {
         },
         JWT_PRIVATE_KEY,
         {
-            jwtid: generateHash(10),
+            jwtid: generateHash(USER_HASH_LENGTH),
         }
     );
 

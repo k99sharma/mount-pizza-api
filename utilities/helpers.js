@@ -38,3 +38,23 @@ module.exports.generateHash = length => {
 	return code;
 };
 
+
+// function to set tokens
+// status: delete, set
+const Token = require('../schemas/Token');
+module.exports.setToken = async (userId, token, status) => {
+    if(status === 'delete'){
+        await Token.findByIdAndRemove(userId, (err, data)=>{
+            if(err){
+                return this.sendError
+            }
+        })
+    }else{
+        const newToken = new Token({
+            userId: userId,
+            token: token,
+        });
+
+        await newToken.save();
+    }
+}

@@ -1,4 +1,4 @@
-const { OK } = require("./statusCodes");
+const { OK, BAD_REQUEST } = require("./statusCodes");
 
 // function to send error
 module.exports.sendError = (res, message, status ) => {
@@ -45,14 +45,25 @@ const Token = require('../schemas/Token');
 module.exports.setToken = async (userId, token) => {
     const tkn = new Token({
         userId: userId,
-        token: token,
-    })
+        value: token,
+    });
 
     await tkn.save()
         .then(()=>{
             console.log("Token is saved");
         })
         .catch((err)=>{
-            console.log("failed to save token");
+            console.log(err);
+            console.log("Failed to save token");
         })
+}
+
+module.exports.deleteToken = async (userId) => {
+    let tkn = await Token.findOne({ userId: userId }).lean();
+    if(!tkn){
+        return "NOT FOUND";
+    }
+
+    tkn = await Token.findByIdAndDelete(tkn._id);
+    return "DELETED";
 }

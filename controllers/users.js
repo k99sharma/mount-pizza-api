@@ -9,6 +9,7 @@ const {
     generateHash,
     setToken,
     sendSuccess,
+    deleteToken,
 } = require('../utilities/helpers');
 
 // status codes
@@ -24,6 +25,7 @@ const {
 const {
     USER_HASH_LENGTH
 } = require('../configs/index');
+const Token = require('../schemas/Token');
 
 // POST: cb for creating user
 const createUser = async (req, res) => {
@@ -41,7 +43,7 @@ const createUser = async (req, res) => {
         email: email,
     });
 
-    if(user)
+    if (user)
         return sendError(res, "User already registered", BAD_REQUEST);
 
     // creating new user
@@ -56,7 +58,7 @@ const createUser = async (req, res) => {
 
     // save new user in database
     newUser = await newUser.save();
-    
+
     // generate token
     const token = await newUser.generateAuthToken();
 
@@ -73,7 +75,7 @@ const getUser = async (req, res) => {
     const user = await User.findById(userId).lean();
 
     // if user is not found
-    if(!user)
+    if (!user)
         return sendError(res, "User not found", BAD_REQUEST);
 
     return sendSuccess(res, user);
@@ -84,9 +86,9 @@ const getAllUsers = async (req, res) => {
     const userList = await User.find({}).lean();
 
     // if there is no user present
-    if(userList.length == 0)
+    if (userList.length == 0)
         return sendError(res, "No user found", OK);
-    
+
     return sendSuccess(res, userList);
 }
 
@@ -96,7 +98,7 @@ const updateUser = async (req, res) => {
     let user = await User.findById(userId).lean();
 
     // if user is not found
-    if(!user)
+    if (!user)
         return sendError(res, "User not found", BAD_REQUEST);
 
     user = await User.findByIdAndUpdate(userId, req.body);
@@ -109,9 +111,15 @@ const deleteUser = async (req, res) => {
     let user = await User.findById(userId).lean();
 
     // check if user exists
-    if(!user)
+    if (!user)
         return sendError(res, "User not found", BAD_REQUEST);
 
+    // delete token if its there
+    if (deleteToken(userId) != "NOT FOUND") {
+        console.log('Token is deleted');
+    }else{
+        console.log('Token is not deleted');
+    }
 
     // delete the user
     user = await User.findByIdAndRemove(userId);
@@ -119,7 +127,7 @@ const deleteUser = async (req, res) => {
 }
 
 module.exports = {
-    createUser, 
+    createUser,
     getUser,
     getAllUsers,
     updateUser,

@@ -17,6 +17,7 @@ const {
     BAD_REQUEST,
     FORBIDDEN,
     NOT_AUTHORIZED,
+    NOT_FOUND,
 } = require('../utilities/statusCodes');
 
 // HASH LENGTH
@@ -65,76 +66,56 @@ const createUser = async (req, res) => {
     return sendSuccess(res, newUser, token);
 }
 
-// GET: cb for get user
+// GET: cb for get user by id
 const getUser = async (req, res) => {
-    try{
-        const userID = req.params.id;
+    const userId = req.params.id;
 
-        const user = await User.findById(userID);
-    
-        if(user === null)
-            console.log('User is found.');
-        else
-            res.status(200).send(user);
-    }
-    catch(err){
-        console.log(err);
-    }
+    const user = await User.findById(userId).lean();
+
+    // if user is not found
+    if(!user)
+        return sendError(res, "User not found", BAD_REQUEST);
+
+    return sendSuccess(res, user);
 }
 
 // GET: cb for getting all users
 const getAllUsers = async (req, res) => {
-    try{
-        const users = await User.find({});
+    const userList = await User.find({}).lean();
 
-        if(users.length === 0)
-            console.log('No user found.');
-        
-        else    
-            res.status(200).send(users);
-    }
-    catch(err){
-        console.log(err);
-    }
+    // if there is no user present
+    if(userList.length == 0)
+        return sendError(res, "No user found", OK);
+    
+    return sendSuccess(res, userList);
 }
 
 // UPDATE: cb for updating user
 const updateUser = async (req, res) => {
-    try{
-        const userID = req.params.id;
-        const updatedData = req.body;
+    const userId = req.params.id;
+    let user = await User.findById(userId).lean();
 
-        await User.findByIdAndUpdate(userID, updatedData)
-            .then(()=>{
-                res.status(201).send('User is updated.');
-            })
-            .catch(err => {
-                console.log(err);
-            })
-    }
-    catch(err){
-        console.log(err);
-    }
+    // if user is not found
+    if(!user)
+        return sendError(res, "User not found", BAD_REQUEST);
+
+    user = await User.findByIdAndUpdate(userId, req.body);
+    return sendSuccess(res, user);
 }
 
 // DELETE: cb for deleting user
 const deleteUser = async (req, res) => {
-    try{    
-        const userID = req.params.id;
+    const userId = req.params.id
+    let user = await User.findById(userId).lean();
 
-        await User.findByIdAndRemove(userID, (err, data)=>{
-            if(err)
-                console.log(err);
-            
-            if(!data)
-                console.log('Already Deleted!');
-            else   
-                res.status(200).send('User is deleted.');
-        })
-    }
-    catch(err){
-        console.log(err);
-    }
+    // check if user exists
+    if(!user)
+        return sendError(res, "User not found", BAD_REQUEST);
+
+
+    // delete the user
+    user = await User.findByIdAndRemove(userId);
+    return sendSuccess(res, user);
 }
 
 module.exports = {

@@ -59,8 +59,9 @@ userSchema.pre("save", async function(next){
 });
 
 // function to check if password is valid
-userSchema.methods.isValidPwd = async (password) => {
-    const isMatchPwd = await bcrypt.compare(password, this.password);
+userSchema.methods.isValidPwd = async (password, userPassword) => {
+    console.log(password);
+    const isMatchPwd = await bcrypt.compare(password, userPassword);
     return isMatchPwd;
 }
 

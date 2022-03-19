@@ -60,7 +60,12 @@ const createUser = async (req, res) => {
     newUser = await newUser.save();
 
     // generate token
-    const token = await newUser.generateAuthToken();
+    const token = await newUser.generateAuthToken(
+        firstName,
+        lastName,
+        role,
+        email,
+    );
 
     // set token entry in database
     setToken(String(newUser._id), token);

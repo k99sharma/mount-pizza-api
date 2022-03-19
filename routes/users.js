@@ -4,6 +4,11 @@ const router = express.Router();
 // importing middlewares
 const { catchErrors } = require('../configs/errorHandlers');
 
+// importing authentication middlewares
+const{
+    allAuth,
+    adminAuth
+} = require('../middlewares/auth');
 
 // importing controllers
 const user = require('../controllers/users');
@@ -13,15 +18,15 @@ const user = require('../controllers/users');
 router.post('/create', catchErrors(user.createUser));
 
 // GET: route to get user using id
-router.get('/:id/get', catchErrors(user.getUser));
+router.get('/:id/get', allAuth, catchErrors(user.getUser));
 
 // GET: route to get all users 
-router.get('/getAll', catchErrors(user.getAllUsers));
+router.get('/getAll', adminAuth, catchErrors(user.getAllUsers));
 
 // PUT: route to update user data
-router.put('/:id/update', catchErrors(user.updateUser));
+router.put('/:id/update', allAuth, catchErrors(user.updateUser));
 
 // DELETE: route to delete user data
-router.delete('/:id/delete', catchErrors(user.deleteUser));
+router.delete('/:id/delete', allAuth, catchErrors(user.deleteUser));
 
 module.exports = router;

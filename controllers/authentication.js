@@ -38,7 +38,12 @@ module.exports.login = async (req, res, next) => {
                 return sendError(res, 'Already loggedIn. Please logout.', FORBIDDEN);
             } else {
                 // generate new token if expired
-                const newToken = await user.generateAuthToken();
+                const newToken = await user.generateAuthToken(
+                    user.firstName,
+                    user.lastName,
+                    user.role,
+                    user.email,
+                );
                 setToken(user._id, newToken);
                 console.log('User is logged in');
                 return sendSuccess(res, user, newToken);

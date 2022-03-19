@@ -5,19 +5,27 @@ const router = express.Router();
 // importing middlewares
 const { catchErrors } = require('../configs/errorHandlers');
 
+// importing authentication middlewares
+const {
+    adminAuth,
+    allAuth
+} = require('../middlewares/auth');
+
 // importing controllers
 const order = require('../controllers/orders');
 
 // POST: create an new order
-router.post('/create', catchErrors(order.createOrder));
-
-// DELETE: delete order
-router.delete('/:id/delete', catchErrors(order.deleteOrder));
+router.post('/:id/create', allAuth, catchErrors(order.createOrder));
 
 // GET: get order
-router.get('/:id/get', catchErrors(order.getOrder));
+router.get('/:id/get', allAuth, catchErrors(order.getOrder));
 
-// PUT: update an order
-router.put('/:id/update', catchErrors(order.updateOrder));
+
+// TODO
+// // DELETE: delete order
+// router.delete('/:id/delete', catchErrors(order.deleteOrder));
+
+// // PUT: update an order
+// router.put('/:id/update', catchErrors(order.updateOrder));
 
 module.exports = router;

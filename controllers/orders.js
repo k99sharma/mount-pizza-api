@@ -2,60 +2,86 @@
 const Order = require('../schemas/Order');
 const Pizza = require('../schemas/Pizza');
 const Topping = require('../schemas/Topping');
+const User = require('../schemas/User');
+
+// importing error handlers
+const { 
+    sendError, sendSuccess 
+} = require('../utilities/helpers');
+
+// importing status codes
+const { 
+    BAD_REQUEST, NOT_FOUND
+} = require('../utilities/statusCodes');
+
 
 // function to create new order
 const createOrder = async (req, res) => {
-    const {customerID, pizzasArray} = req.body;
-    
-    // calculating order price
-    let orderPrice = 0;
-    for(let i=0; i<pizzasArray.length; i++){
-        const pizzaID = pizzasArray[i].pizzaID;
-        const toppingsArray = pizzasArray[i].toppingsArray;
-        const quantity = pizzasArray[i].quantity;
+    const customerId = req.params.id;
 
-        // getting pizza price
-        const pizza = await Pizza.findById(pizzaID);
-        const pizzaPrice = pizza.price;
+    const {
+        items
+    } = req.body;
 
-        // getting topping price
-        let toppingPrice = 0;
-        for(let j = 0; j < toppingsArray.length; j++){
-            const currentToppingID = toppingsArray[j];
-            const toppingDetail = Topping.findById(currentToppingID);
-            toppingPrice += toppingDetail.price;
-        }
+    // check if customer id exists
+    const customer = await User.findOne({ _id: customerId });
+    if(!customer)
+        return sendError(res, 'User do not exist', BAD_REQUEST);
 
-        const totalPizzaPrice = (pizzaPrice + toppingPrice) * quantity;
+    // calculating price of items
+    let price = 0;
+    for(let i=0; i<items.length; i++){
+        const pizzaId = items[i].pizzaId;
+        const quantity = items[i].quantity;
 
-        // adding into order
-        orderPrice += totalPizzaPrice;
+        const pizza = await Pizza.findById(pizzaId);
+        console.log(pizza);
+        price += pizza.price;
+        price *= quantity;
     }
 
-    // creating the order
     const newOrder = new Order({
-        date: Date.now(),
-        customerID: customerID,
-        pizzas: pizzasArray,
-        amount: orderPrice,
+        customerId: customerId,
+        items: items,
+        orderPrice: price,
+        orderDate: new Date(Date.now()).toISOString(),
     });
 
-    res.send(newOrder);
+    // saving orderId in customer
+    await User.findByIdAndUpdate(customerId, {
+        $push: {
+            orderHistory: newOrder._id,
+        }
+    })
+
+    await newOrder.save();
+
+    return sendSuccess(res, newOrder);
 }
 
 // function to get order using id
-const getOrder = async (req, res) => {}
+const getOrder = async (req, res) => {
+    const orderId = req.params.id;
 
+    // checking if order exists
+    const order = await Order.findById(orderId);
+    if(!order)
+        return sendError(res, "Order not found", NOT_FOUND);
+
+    return sendSuccess(res, order);
+}
+
+// TODO
 // function to update order
-const updateOrder = async (req, res) => {}
+// const updateOrder = async (req, res) => {}
 
-// function to delete order
-const deleteOrder = async (req, res) => {}
+// // function to delete order
+// const deleteOrder = async (req, res) => {}
 
 
 module.exports = {
     createOrder,
     getOrder,
-    updateOrder,
-    deleteOrder
+    // updateOrder,
+    // deleteOrder
 };

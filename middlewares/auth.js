@@ -29,7 +29,8 @@ module.exports.adminAuth = (req, res, next) => {
         );
 
     const decodePayload = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
-    if(decodePayload.role === 'admin'){
+    console.log(decodePayload);
+    if(decodePayload.role === 'ADMIN'){
         req.user = decodePayload;
         return next();
     }else{

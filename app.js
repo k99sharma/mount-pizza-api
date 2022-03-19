@@ -40,6 +40,7 @@ module.exports = () => {
     app.use('/mountpizza/items/toppings', require('./routes/Items/toppings'));
     app.use('/mountpizza/items/pizzas', require('./routes/Items/pizzas'));
     app.use('/mountpizza/orders', require('./routes/orders'));
+    app.use('/mountpizza/auth', require('./routes/authentication'));
     
     app.use('*', notFound);   // 404 route: NOT FOUND
 

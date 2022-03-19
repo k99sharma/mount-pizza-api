@@ -2,6 +2,12 @@
 const express = require('express');
 const router = express.Router();
 
+// importing authenticaton middlewares
+const {
+    allAuth,
+    adminAuth
+} = require('../../middlewares/auth');
+
 // importing middlewares
 const { catchErrors } = require('../../configs/errorHandlers');
 
@@ -9,18 +15,18 @@ const { catchErrors } = require('../../configs/errorHandlers');
 const topping = require('../../controllers/Items/toppings');
 
 // POST: create new topping
-router.post('/create', catchErrors(topping.createTopping));
+router.post('/create', adminAuth, catchErrors(topping.createTopping));
 
 // GET: get topping
-router.get('/:id/get', catchErrors(topping.getTopping));
+router.get('/:id/get', allAuth, catchErrors(topping.getTopping));
 
 // GET: get all toppings
-router.get('/getAll', catchErrors(topping.getAllToppings));
+router.get('/getAll', allAuth, catchErrors(topping.getAllToppings));
 
 // PUT: update topping
-router.put('/:id/update', catchErrors(topping.updateTopping));
+router.put('/:id/update', adminAuth, catchErrors(topping.updateTopping));
 
 // DELETE: delete topping
-router.delete('/:id/delete', catchErrors(topping.deleteTopping));
+router.delete('/:id/delete', adminAuth, catchErrors(topping.deleteTopping));
 
 module.exports = router;

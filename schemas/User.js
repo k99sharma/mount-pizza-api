@@ -59,24 +59,21 @@ userSchema.pre("save", async function(next){
 });
 
 // function to check if password is valid
-userSchema.methods.isValidPwd = async (password) => {
-    const isMatchPwd = await bcrypt.compare(password, this.password);
+userSchema.methods.isValidPwd = async (password, userPassword) => {
+    console.log(password);
+    const isMatchPwd = await bcrypt.compare(password, userPassword);
     return isMatchPwd;
 }
 
 // function to generate unique token
-userSchema.methods.generateAuthToken = async () => {
+userSchema.methods.generateAuthToken = async (firstName, lastName, role, email) => {
     const token = jwt.sign(
         {
-            id: this._id,
-            name: `${this.firstName} ${this.lastName}`,
-            email: this.email,
-            role: this.role,
+            name: `${firstName} ${lastName}`,
+            email: email,
+            role: role,
         },
         JWT_PRIVATE_KEY,
-        {
-            jwtid: generateHash(USER_HASH_LENGTH),
-        }
     );
 
     return token;

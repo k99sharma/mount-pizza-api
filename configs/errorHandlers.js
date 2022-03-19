@@ -1,6 +1,8 @@
 const { sendError } = require("../utilities/helpers");
-const { NOT_FOUND, SERVER_ERROR } = require("../utilities/helpers");
-
+const{
+    NOT_FOUND,
+    SERVER_ERROR
+} = require('../utilities/statusCodes');
 
 // function to catch errors
 // it takes another function as a parameter
@@ -17,7 +19,7 @@ module.exports.catchErrors = middlewareFunction => {
 
 // not found routes
 module.exports.notFound = (req, res) => {
-    sendError(res, "Route doesn't exist", NOT_FOUND);
+    return sendError(res, "Route doesn't exist", NOT_FOUND);
 };
 
 
@@ -27,5 +29,5 @@ module.exports.sendErrors = (err, req, res, next) => {
     console.log(err);
 
     // sending to user on frontend
-    sendError(req, "Something went wrong", err.status || SERVER_ERROR);
+    return sendError(res, "Something went wrong", err.status || SERVER_ERROR);
 }

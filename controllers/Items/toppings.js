@@ -1,93 +1,97 @@
 // importing model
 const Topping = require('../../schemas/Topping');
 
+// importing status codes
+const {
+    OK,
+    BAD_REQUEST,
+    NOT_FOUND,
+} = require('../../utilities/statusCodes');
+
+// importing error handles
+const{
+    sendError,
+    sendSuccess
+} = require('../../utilities/helpers');
+
+
 // function to create new topping
 const createTopping = async (req, res) => {
-    try{
-        const newTopping = new Topping(req.body);
+    const {
+        name,
+        price,
+        category
+    } = req.body;
 
-        await newTopping.save()
-            .then(()=>{
-                res.status(201).send('Topping is created.');
-            })
-            .catch(err => {
-                console.log(err);
-            })
+    let topping = await Topping.findOne({name: name}).lean();
+
+    // if topping is already present
+    if(topping){
+        return sendError(res, "Topping already present", BAD_REQUEST);
     }
-    catch(err){
-        console.log(err);
-    }
+
+    // if not present --> create new topping
+    topping = new Topping({
+        name: name,
+        price: price,
+        category: category,
+    });
+
+    await topping.save();
+    return sendSuccess(res, topping);
 }
 
 // function to get topping by id
 const getTopping = async (req, res) => {
-    try{
-        const ToppingID = req.params.id;
+    const toppingId = req.params.id;
 
-        const topping = await Topping.findById(ToppingID);
-    
-        if(!topping)
-            console.log('Topping not found.');
-        else
-            res.status(200).send(topping);
+    const topping = await Topping.findById(toppingId);
+
+    if(!topping){
+        return sendError(res, "Topping not found", NOT_FOUND);
     }
-    catch(err){
-        console.log(err);
-    }
+
+    return sendSuccess(res, topping);
 }
 
 // function to get all toppings
 const getAllToppings = async (req, res) => {
-    try{
-        const toppings = await Topping.find({});
+    const toppingList = await Topping.find({}).lean();
 
-        if(toppings.length === 0)
-            console.log('Topping not found.');
-    
-        res.status(200).send(toppings);
-    }
-    catch(err){
-        console.log(err);
-    }
+    // if no topping is present
+    if(toppingList.length == 0)
+        return sendError(res, "Topping is not found", OK);
+
+    return sendSuccess(res, toppingList);
 }
 
 // function to update topping
 const updateTopping = async (req, res) => {
-    try{
-        const toppingID = req.params.id;
-        const updatedData = req.body;
+    const toppingId = req.params.id;
+    let topping = await Topping.findById(toppingId).lean();
+
+    // if topping is not present
+    if(!topping){
+        return sendError(res, 'Topping is not found', NOT_FOUND);
+    }
+
+    // updating values
+    topping = await Topping.findByIdAndUpdate(toppingId, req.body);
+    return sendSuccess(res, topping);
     
-        await Topping.findByIdAndUpdate(toppingID, updatedData)
-            .then(()=>{
-                res.status(201).send('Topping is updated.');
-            })
-            .catch(err => {
-                console.log('Topping is not updated.')
-            })
-    }
-    catch(err){
-        console.log(err);
-    }
 }
 
 // function to delete topping
 const deleteTopping = async (req, res) => {
-    try{
-        const toppingID = req.params.id;
-        
-        await Topping.findByIdAndRemove(toppingID, (err, data)=>{
-            if(err)
-                console.log(err);
-            
-            if(!data)
-                console.log('Already deleted.');
-            else
-                res.status(200).send('Topping deleted.');
-        })
-    }
-    catch(err){
-        console.log(err);
-    }
+    const toppingId  = req.params.id;
+    let topping = await Topping.findById(toppingId).lean();
+
+    // if topping is not found
+    if(!topping)
+        return sendError(res, 'Topping not found', NOT_FOUND);
+
+    topping = await Topping.findByIdAndRemove(toppingId);
+    return sendSuccess(res, topping);
 }
 
 module.exports = {

@@ -2,130 +2,152 @@
 const Pizza = require('../../schemas/Pizza');
 const Topping = require('../../schemas/Topping');
 
-// base parameters
-const BASE_COST = 100;
+// importing errors handlers
+const {
+    sendError,
+    sendSuccess,
+} = require('../../utilities/helpers');
+
+// importing status codes
+const {
+    OK,
+    BAD_REQUEST,
+    NOT_FOUND
+} = require('../../utilities/statusCodes');
+
+// importing default values
+const {
+    CRUST
+} = require('../../utilities/DEFAULT_VALUES');
 
 // function to create pizza
 const createPizza = async (req, res) => {
-    try{
-        const { name, toppings } = req.body;
+    const {
+        name,
+        toppings,
+        crustType,
+    } = req.body;
 
-        // topping sting into array
-        const toppingsArray = toppings.split(',');
-    
-        // calculating price of pizza
-        let pizzaPrice = BASE_COST;
-        for(let i=0; i<toppingsArray.length; i++){
-            const toppingID = toppingsArray[i];
-            const topping = await Topping.findById(toppingID);
-            pizzaPrice += topping.price;
-        }
-    
-        const newPizza = new Pizza({
-            name: name,
-            toppings: toppings,
-            price: pizzaPrice
-        });
-    
-        await newPizza.save()
-            .then(()=>{
-                res.status(201).send('Pizza created.');
-            })
-            .catch(err => {
-                console.log(err);
-            })
+    // find if there is already a pizza present
+    const pizza = await Pizza.findOne({ name: name });
+    if (pizza)
+        return sendError(res, 'Pizza is already present', BAD_REQUEST);
+
+    // getting all toppings price
+    const toppingsList = [];
+    let price = 0;
+    for (let i = 0; i < toppings.length; i++) {
+        const topping = await Topping.findById(toppings[i]);
+        price += topping.price;
+        toppingsList.push(topping);
     }
-    catch(err){
-        console.log(err);
+
+    // adding crust price
+    if (crustType === 'SMALL') {
+        price += CRUST.SMALL;
+    } else if (crustType === 'MEDIUM') {
+        price += CRUST.MEDIUM;
+    } else {
+        price += CRUST.LARGE;
     }
+
+    // creating new pizza
+    const newPizza = new Pizza({
+        name: name,
+        toppings: toppings,
+        style: DEFAULT,
+        price: price,
+        crustType: crustType,
+    });
+
+    // saving pizza
+    await newPizza.save();
+
+    return sendSuccess(res, newPizza);
 };
 
 // function to update pizza
 const updatePizza = async (req, res) => {
-    try{
-        const pizzaID = req.params.id;
-        const { name, toppings } = req.body;
+    const pizzaId = req.params.id;
 
-        // topping sting into array
-        const toppingsArray = toppings.split(',');
-    
-        // calculating price of pizza
-        let pizzaPrice = BASE_COST;
-        for(let i=0; i<toppingsArray.length; i++){
-            const toppingID = toppingsArray[i];
-            const topping = await Topping.findById(toppingID);
-            pizzaPrice += topping.price;
+    // check if pizza exists
+    let pizza = await Pizza.findById(pizzaId);
+    if (!pizza)
+        return sendError(res, 'Pizza is not found', NOT_FOUND);
+
+    const {
+        toppings,
+        crustType
+    } = req.body;
+
+    let price = 0;
+    // getting all toppings price
+    if (toppings.length != 0) {
+        const toppingsList = [];
+        for (let i = 0; i < toppings.length; i++) {
+            const topping = await Topping.findById(toppings[i]);
+            price += topping.price;
+            toppingsList.push(topping);
         }
-    
-        const pizza = new Pizza({
-            name: name,
-            toppings: toppings,
-            price: pizzaPrice
-        });
-    
-        await Pizza.findByIdAndUpdate(pizzaID, pizza)
-            .then(()=>{
-                res.status(201).send('Pizza is updated.');
-            })
-            .catch(err => {
-                console.log(err);
-            })
     }
-    catch(err){
-        console.log(err);
+
+
+    // if crust is given
+    if(pizza.crustType != null){
+        if (crustType === 'SMALL') {
+            price += CRUST.SMALL;
+        } else if (crustType === 'MEDIUM') {
+            price += CRUST.MEDIUM;
+        } else {
+            price += CRUST.LARGE;
+        }
     }
+   
+
+    // update the pizza
+    pizza = await Pizza.findByIdAndUpdate(pizzaId, {
+        toppings: toppings,
+        price: price,
+    });
+
+    return sendSuccess(res, pizza);
 };
 
 // function to delete pizza
 const deletePizza = async (req, res) => {
-    try{
-        const pizzaID = req.params.id;
+    const pizzaId = req.params.id;
 
-        await Pizza.findByIdAndRemove(pizzaID, (err, data)=>{
-            if(err)
-                console.log(err);
+    // check if pizza is present
+    let pizza = await Pizza.findById(pizzaId);
+    if (!pizza)
+        return sendError(res, 'Pizza is not present', NOT_FOUND);
 
-            if(!data)
-                console.log('Pizza already deleted.');
-            else
-                res.status(200).send('Pizza is deleted.');
-        })
-    }
-    catch(err){
-        console.log(err);
-    }
+    // delete pizza
+    pizza = await Pizza.findByIdAndRemove(pizzaId);
+    return sendSuccess(res, pizza);
 };
 
 // function to get pizza
 const getPizza = async (req, res) => {
-    try{
-        const pizzaID = req.params.id;
+    const pizzaId = req.params.id;
 
-        const pizza = await Pizza.findById(pizzaID);
-    
-        if(pizza === null)
-            console.log('Not found.');
-        else
-            res.status(200).send(pizza);
-    }
-    catch(err){
-        console.log(err);
-    }
+    // check if pizza exits
+    const pizza = await Pizza.findById(pizzaId);
+    if (!pizza)
+        return sendError(res, 'Pizza is not found', NOT_FOUND);
+
+    return sendSuccess(res, pizza);
 };
 
 // function to getAll pizzas
 const getAllPizzas = async (req, res) => {
-    try{
-        const pizzas = await Pizza.find({});
+    const pizzaList = await Pizza.find({});
 
-        if(pizzas.length === 0)
-            console.log('Pizza not found.');
-    
-        res.status(200).send(pizzas);
-    }
-    catch(err){
-        console.log(err);
-    }
+    // check if pizza is present
+    if (pizzaList.length === 0)
+        return sendError(res, 'No pizza found', OK);
+
+    return sendSuccess(res, pizzaList);
 };
 
 module.exports = {

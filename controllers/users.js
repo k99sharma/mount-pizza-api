@@ -6,7 +6,6 @@ const User = require('../schemas/User');
 // importing error handlers
 const {
     sendError,
-    generateHash,
     setToken,
     sendSuccess,
     deleteToken,
@@ -16,8 +15,6 @@ const {
 const {
     OK,
     BAD_REQUEST,
-    FORBIDDEN,
-    NOT_AUTHORIZED,
     NOT_FOUND,
 } = require('../utilities/statusCodes');
 
@@ -74,14 +71,14 @@ const createUser = async (req, res) => {
 }
 
 // GET: cb for get user by id
-const getUser = async (req, res) => {
-    const userId = req.params.id;
+const getUserById = async (req, res) => {
+    const userId = req.query.id;
 
     const user = await User.findById(userId).lean();
 
     // if user is not found
     if (!user)
-        return sendError(res, "User not found", BAD_REQUEST);
+        return sendError(res, "User not found", NOT_FOUND);
 
     return sendSuccess(res, user);
 }
@@ -104,7 +101,7 @@ const updateUser = async (req, res) => {
 
     // if user is not found
     if (!user)
-        return sendError(res, "User not found", BAD_REQUEST);
+        return sendError(res, "User not found", NOT_FOUND);
 
     user = await User.findByIdAndUpdate(userId, req.body);
     return sendSuccess(res, user);
@@ -117,7 +114,7 @@ const deleteUser = async (req, res) => {
 
     // check if user exists
     if (!user)
-        return sendError(res, "User not found", BAD_REQUEST);
+        return sendError(res, "User not found", NOT_FOUND);
 
     // delete token if its there
     if (deleteToken(userId) != "NOT FOUND") {
@@ -133,7 +130,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     createUser,
-    getUser,
+    getUserById,
     getAllUsers,
     updateUser,
     deleteUser,

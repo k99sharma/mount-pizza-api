@@ -18,7 +18,7 @@ const topping = require('../../controllers/Items/toppings');
 router.post('/create', adminAuth, catchErrors(topping.createTopping));
 
 // GET: get topping
-router.get('/:id/get', allAuth, catchErrors(topping.getTopping));
+router.get('/get', allAuth, catchErrors(topping.getTopping));
 
 // GET: get all toppings
 router.get('/getAll', allAuth, catchErrors(topping.getAllToppings));

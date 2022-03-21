@@ -129,7 +129,7 @@ const deletePizza = async (req, res) => {
 
 // function to get pizza
 const getPizza = async (req, res) => {
-    const pizzaId = req.params.id;
+    const pizzaId = req.query.id;
 
     // check if pizza exits
     const pizza = await Pizza.findById(pizzaId);

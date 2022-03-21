@@ -43,7 +43,7 @@ const createTopping = async (req, res) => {
 
 // function to get topping by id
 const getTopping = async (req, res) => {
-    const toppingId = req.params.id;
+    const toppingId = req.query.id;
 
     const topping = await Topping.findById(toppingId);
 

@@ -13,4 +13,6 @@ module.exports = {
     EMAIL_PASS: process.env.EMAIL_USER,
     EMAIL_HOST: process.env.EMAIL_HOST,
     SENDER_MAIL: process.env.SENDER_MAIL,
+    RZP_KEY_ID: process.env.RZP_KEY_ID,
+    RZP_KEY_SECRET: process.env.RZP_KEY_SECRET,
 };

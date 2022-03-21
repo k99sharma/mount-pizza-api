@@ -1,17 +1,26 @@
+// importing modules
+const Razorpay = require('razorpay');
+
 // importing schemma
 const Order = require('../schemas/Order');
 const Pizza = require('../schemas/Pizza');
 const Topping = require('../schemas/Topping');
 const User = require('../schemas/User');
 
+// importing constants
+const {
+    RZP_KEY_ID,
+    RZP_KEY_SECRET
+} = require('../configs/index');
+
 // importing error handlers
 const { 
-    sendError, sendSuccess 
+    sendError, sendSuccess, calculateOrderPrice 
 } = require('../utilities/helpers');
 
 // importing status codes
 const { 
-    BAD_REQUEST, NOT_FOUND
+    BAD_REQUEST, NOT_FOUND, SERVER_ERROR
 } = require('../utilities/statusCodes');
 
 
@@ -19,44 +28,49 @@ const {
 const createOrder = async (req, res) => {
     const customerId = req.params.id;
 
-    const {
-        items
-    } = req.body;
-
     // check if customer id exists
     const customer = await User.findOne({ _id: customerId });
     if(!customer)
         return sendError(res, 'User do not exist', BAD_REQUEST);
 
-    // calculating price of items
-    let price = 0;
-    for(let i=0; i<items.length; i++){
-        const pizzaId = items[i].pizzaId;
-        const quantity = items[i].quantity;
+    console.log(req.body);
 
-        const pizza = await Pizza.findById(pizzaId);
-        console.log(pizza);
-        price += pizza.price;
-        price *= quantity;
-    }
+                                                    // ALL THE PRICE CALCULATION WILL BE DONE AT FRONTEND ONLY 
 
-    const newOrder = new Order({
-        customerId: customerId,
-        items: items,
-        orderPrice: price,
-        orderDate: new Date(Date.now()).toISOString(),
-    });
+                                                    // TODO: AFTER FRONTEND ---> PAYMENT INTEGRATION
 
-    // saving orderId in customer
-    await User.findByIdAndUpdate(customerId, {
-        $push: {
-            orderHistory: newOrder._id,
-        }
+    // RAZORPAY PAYMENT GATEWAY INTEGRATION
+    // instantiate razorpay instance
+    const instance = new Razorpay({
+        key_id: RZP_KEY_ID,
+        key_secret: RZP_KEY_SECRET,
     })
 
-    await newOrder.save();
+    const options = {
+        amount: req.body.amount,
+        currency: "INR",
+        receipt: "rcp1"
+    };
+    
+    instance.orders.create(options, (err, order) => {
+        if(err){
+            return sendError(res, 'Order cannot be generated', SERVER_ERROR);
+        }
 
-    return sendSuccess(res, newOrder);
+        return sendSuccess(res, {
+            orderId: order.id,
+        });
+    })
+
+    // saving orderId in customer
+    // await User.findByIdAndUpdate(customerId, {
+    //     $push: {
+    //         orderHistory: newOrder._id,
+    //     }
+    // })
+
+    // saving new order
+    // await newOrder.save();
 }
 
 // function to get order using id

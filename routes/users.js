@@ -18,7 +18,7 @@ const user = require('../controllers/users');
 router.post('/create', catchErrors(user.createUser));
 
 // GET: route to get user using id
-router.get('/:id/get', allAuth, catchErrors(user.getUser));
+router.get('/get', allAuth, catchErrors(user.getUserById));
 
 // GET: route to get all users 
 router.get('/getAll', adminAuth, catchErrors(user.getAllUsers));

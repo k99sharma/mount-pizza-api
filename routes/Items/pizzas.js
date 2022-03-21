@@ -18,7 +18,7 @@ const pizza = require('../../controllers/Items/pizzas');
 router.post('/create', adminAuth, catchErrors(pizza.createPizza));
 
 // GET: get pizza
-router.get('/:id/get', allAuth, catchErrors(pizza.getPizza));
+router.get('/get', allAuth, catchErrors(pizza.getPizza));
 
 // GET: get all pizzas
 router.get('/getAll', allAuth, catchErrors(pizza.getAllPizzas));

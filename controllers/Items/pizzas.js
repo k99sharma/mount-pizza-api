@@ -15,10 +15,6 @@ const {
     NOT_FOUND
 } = require('../../utilities/statusCodes');
 
-// importing default values
-const {
-    CRUST
-} = require('../../utilities/DEFAULT_VALUES');
 
 // function to create pizza
 const createPizza = async (req, res) => {

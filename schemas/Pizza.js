@@ -27,7 +27,7 @@ const pizzaSchema = new Schema({
     }
 },
 {
-    timeseries: true,
+    timestamps: true,
 });
 
 const pizza = mongoose.model('Pizza', pizzaSchema);

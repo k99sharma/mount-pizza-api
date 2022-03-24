@@ -67,7 +67,7 @@ const createUser = async (req, res) => {
     // set token entry in database
     setToken(String(newUser._id), token);
 
-    return sendSuccess(res, newUser, token);
+    return sendSuccess(res, token);
 }
 
 // GET: cb for get user by id

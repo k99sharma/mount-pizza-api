@@ -32,7 +32,7 @@ module.exports.addItems = async (req, res) => {
         // create new cart item
         const newCartItem = new Cart({
             sessionId: sessionId,
-            itemId: itemId,
+            item: itemId,
             quantity: quantity,
         });
 
@@ -62,7 +62,7 @@ module.exports.addItems = async (req, res) => {
                 // creating new item for this session
                 const newCartItem = new Cart({
                     sessionId: sessionId,
-                    itemId: itemId,
+                    item: itemId,
                     quantity: quantity,
                 });
 
@@ -84,6 +84,21 @@ module.exports.addItems = async (req, res) => {
 };
 
 // cb: get items from cart
+module.exports.getItems = async (req, res) => {
+    const customer = await User.findOne({email : req.user.email });
+    if(!customer){
+        return sendError(res, 'Customer not found', NOT_FOUND);
+    }
+
+    const customerSession = await CartSession.findOne({ customerId: customer._id });
+    if(!customerSession){
+        return sendSuccess(res, { data: [] });
+    }
+
+    const cartItems = await Cart.find({ sessionId: customerSession._id }).populate('item');
+
+    return sendSuccess(res, { data: cartItems});
+}
 
 // cb: update items in cart
 

@@ -100,6 +100,27 @@ module.exports.getItems = async (req, res) => {
     return sendSuccess(res, cartItems);
 }
 
+// cb: clear all cart items
+module.exports.clearAll = async (req, res) => {
+    const customer = await User.findOne({ email: req.user.email });
+    
+    // get cart session id
+    const cartSession = await CartSession.findOne({ customerId: customer._id });
+    if(!cartSession){
+        sendError('Cart Session not found');
+    }
+
+    // delete all cart items for this session
+    const deleteCount = await Cart.deleteMany({ sessionId: cartSession._id });
+    if(deleteCount === 0){
+        return sendError(res, 'Cart is not cleared', SERVER_ERROR);
+    }
+
+    await CartSession.findByIdAndDelete(cartSession._id);
+
+    return sendSuccess(res, 'Cart Cleared');
+}
+
 // cb: update items in cart
 
 // cb: delete items from cart

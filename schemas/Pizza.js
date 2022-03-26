@@ -7,14 +7,19 @@ const pizzaSchema = new Schema({
         required: true,
     },
     toppings: {
-        type: Array,
+        type: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'Topping'
+            }
+        ],
         required: true,
     },
     style: {
         type: String,
         required: true,
-        enum: ["CUSTOM", "DEFAULT"],
-        default: "DEFAULT",
+        enum: ["CUSTOM", "ADMIN"],
+        default: "ADMIN",
     },
     price: {
         type: Number,

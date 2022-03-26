@@ -16,6 +16,12 @@ const {
 } = require('../../utilities/statusCodes');
 
 
+const CRUST = {
+    SMALL: 100,
+    MEDIUM: 150,
+    LARGE: 200
+}
+
 // function to create pizza
 const createPizza = async (req, res) => {
     const {
@@ -51,7 +57,7 @@ const createPizza = async (req, res) => {
     const newPizza = new Pizza({
         name: name,
         toppings: toppings,
-        style: DEFAULT,
+        style: "ADMIN",
         price: price,
         crustType: crustType,
     });
@@ -137,7 +143,7 @@ const getPizza = async (req, res) => {
 
 // function to getAll pizzas
 const getAllPizzas = async (req, res) => {
-    const pizzaList = await Pizza.find({});
+    const pizzaList = await Pizza.find({}).populate('toppings');
 
     // check if pizza is present
     if (pizzaList.length === 0)

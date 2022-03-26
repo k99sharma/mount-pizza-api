@@ -4,8 +4,6 @@ const crypto = require('crypto');
 
 // importing schemma
 const Order = require('../schemas/Order');
-const Pizza = require('../schemas/Pizza');
-const Topping = require('../schemas/Topping');
 const User = require('../schemas/User');
 
 // importing constants
@@ -59,12 +57,32 @@ const createOrder = async (req, res) => {
 
 // function to verify payment
 const verifyPayment = async (req, res) => {
-    let body = req.body.razorpayOrderId + "|" + req.body.razorpayPaymentId;
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const customer = await User.findOne({email: req.user.email});
+
+    // creating signature
+    let body = razorpayOrderId + "|" + razorpayPaymentId;
     var expectedSignature = crypto.createHmac('sha256', RZP_KEY_SECRET).update(body.toString()).digest('hex');
 
-    if (expectedSignature !== req.body.razorpaySignature) {
+    // checking if signature is valid
+    if (expectedSignature !== razorpaySignature) {
         return sendError(res, 'Signature not valid', BAD_REQUEST);
     }
+
+    // saving order details in database
+    const newOrder = new Order({
+        customerId: customer._id,
+        orderId: razorpayOrderId,
+        paymentId: razorpayPaymentId,
+        signatureId: razorpaySignature,
+    });
+
+    // adding order id into user db
+    customer.orderHistory.push(newOrder._id);
+    await customer.save(); // save
+    
+    // saving order in db
+    await newOrder.save();
 
     return sendSuccess(res, { "signatureIsValid": "true" });
 }

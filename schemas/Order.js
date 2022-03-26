@@ -2,21 +2,21 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    customerId : {
+    customerId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+    },
+    orderId: {
         type: String,
         required: true,
     },
-    items: {
-        type: Array,
+    paymentId: {
+        type: String,
         required: true,
     },
-    orderPrice: {
-        type: Number,
+    signatureId: {
+        type: String,
         required: true,
-    },
-    orderDate: {
-        type: Date,
-        default: Date.now(),
     },
 },
 {

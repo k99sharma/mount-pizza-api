@@ -92,12 +92,12 @@ module.exports.getItems = async (req, res) => {
 
     const customerSession = await CartSession.findOne({ customerId: customer._id });
     if(!customerSession){
-        return sendSuccess(res, { data: [] });
+        return sendSuccess(res, []);
     }
 
     const cartItems = await Cart.find({ sessionId: customerSession._id }).populate('item');
 
-    return sendSuccess(res, { data: cartItems});
+    return sendSuccess(res, cartItems);
 }
 
 // cb: update items in cart

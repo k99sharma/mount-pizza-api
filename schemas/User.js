@@ -37,7 +37,8 @@ const userSchema = new Schema({
         required: true,
     },
     orderHistory: {
-        type: Array,
+        type: [Schema.Types.ObjectId],
+        ref: 'Order',
     },
     lastLogin: { type: Date, default: Date.now },
     lastActiveAt: { type: Date },

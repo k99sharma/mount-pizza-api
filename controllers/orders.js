@@ -1,10 +1,9 @@
 // importing modules
 const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 // importing schemma
 const Order = require('../schemas/Order');
-const Pizza = require('../schemas/Pizza');
-const Topping = require('../schemas/Topping');
 const User = require('../schemas/User');
 
 // importing constants
@@ -14,88 +13,83 @@ const {
 } = require('../configs/index');
 
 // importing error handlers
-const { 
-    sendError, sendSuccess, calculateOrderPrice 
+const {
+    sendError, sendSuccess
 } = require('../utilities/helpers');
 
 // importing status codes
-const { 
+const {
     BAD_REQUEST, NOT_FOUND, SERVER_ERROR
 } = require('../utilities/statusCodes');
 
 
 // function to create new order
 const createOrder = async (req, res) => {
-    const customerId = req.params.id;
+    const customer = await User.findOne({ email: req.user.email });
+    const { orderPrice } = req.query;
 
-    // check if customer id exists
-    const customer = await User.findOne({ _id: customerId });
-    if(!customer)
-        return sendError(res, 'User do not exist', BAD_REQUEST);
+    // check if customer exists
+    if (!customer) {
+        return sendError(res, 'Customer not found', NOT_FOUND);
+    }
 
-    console.log(req.body);
-
-                                                    // ALL THE PRICE CALCULATION WILL BE DONE AT FRONTEND ONLY 
-
-                                                    // TODO: AFTER FRONTEND ---> PAYMENT INTEGRATION
-
-    // RAZORPAY PAYMENT GATEWAY INTEGRATION
-    // instantiate razorpay instance
+    // creating razorpay instance
     const instance = new Razorpay({
         key_id: RZP_KEY_ID,
         key_secret: RZP_KEY_SECRET,
-    })
+    });
 
     const options = {
-        amount: req.body.amount,
-        currency: "INR",
-        receipt: "rcp1"
-    };
-    
-    instance.orders.create(options, (err, order) => {
-        if(err){
-            return sendError(res, 'Order cannot be generated', SERVER_ERROR);
+        amount: (orderPrice * 100).toString(),
+        currency: 'INR',
+        receipt: 'order_rcptid_1',
+    }
+    // creating an order
+    instance.orders.create(options, function (err, order) {
+        if (err) {
+            return sendError(res, 'Order not placed', BAD_REQUEST);
         }
 
-        return sendSuccess(res, {
-            orderId: order.id,
-        });
+        return sendSuccess(res, order);
     })
-
-    // saving orderId in customer
-    // await User.findByIdAndUpdate(customerId, {
-    //     $push: {
-    //         orderHistory: newOrder._id,
-    //     }
-    // })
-
-    // saving new order
-    // await newOrder.save();
 }
 
-// function to get order using id
-const getOrder = async (req, res) => {
-    const orderId = req.params.id;
 
-    // checking if order exists
-    const order = await Order.findById(orderId);
-    if(!order)
-        return sendError(res, "Order not found", NOT_FOUND);
+// function to verify payment
+const verifyPayment = async (req, res) => {
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+    const customer = await User.findOne({email: req.user.email});
 
-    return sendSuccess(res, order);
+    // creating signature
+    let body = razorpayOrderId + "|" + razorpayPaymentId;
+    var expectedSignature = crypto.createHmac('sha256', RZP_KEY_SECRET).update(body.toString()).digest('hex');
+
+    // checking if signature is valid
+    if (expectedSignature !== razorpaySignature) {
+        return sendError(res, 'Signature not valid', BAD_REQUEST);
+    }
+
+    // saving order details in database
+    const newOrder = new Order({
+        customerId: customer._id,
+        orderId: razorpayOrderId,
+        paymentId: razorpayPaymentId,
+        signatureId: razorpaySignature,
+    });
+
+    // adding order id into user db
+    customer.orderHistory.push(newOrder._id);
+    await customer.save(); // save
+    
+    // saving order in db
+    await newOrder.save();
+
+    return sendSuccess(res, { "signatureIsValid": "true" });
 }
 
-// TODO
-// function to update order
-// const updateOrder = async (req, res) => {}
-
-// // function to delete order
-// const deleteOrder = async (req, res) => {}
 
 
 module.exports = {
     createOrder,
-    getOrder,
-    // updateOrder,
-    // deleteOrder
+    verifyPayment
 };

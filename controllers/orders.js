@@ -87,8 +87,6 @@ const verifyPayment = async (req, res) => {
     return sendSuccess(res, { "signatureIsValid": "true" });
 }
 
-
-
 module.exports = {
     createOrder,
     verifyPayment

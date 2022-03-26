@@ -6,8 +6,9 @@ const cartSchema = new Schema({
         type: String,
         required: true,
     },
-    itemId: {
-        type: String,
+    item: {
+        type: Schema.Types.ObjectId,
+        ref: 'Pizza',
         required: true,
     },
     quantity: {

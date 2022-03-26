@@ -14,18 +14,10 @@ const {
 // importing controllers
 const order = require('../controllers/orders');
 
-// POST: create an new order
-router.post('/:id/create', allAuth, catchErrors(order.createOrder));
+// create new order
+router.post('/create', allAuth, catchErrors(order.createOrder));
 
-// GET: get order
-router.get('/:id/get', allAuth, catchErrors(order.getOrder));
-
-
-// TODO
-// // DELETE: delete order
-// router.delete('/:id/delete', catchErrors(order.deleteOrder));
-
-// // PUT: update an order
-// router.put('/:id/update', catchErrors(order.updateOrder));
+// payment verification
+router.post('/payment/verify', allAuth, catchErrors(order.verifyPayment));
 
 module.exports = router;

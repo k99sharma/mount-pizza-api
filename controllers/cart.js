@@ -15,16 +15,15 @@ const User = require('../schemas/User');
 
 // cb: add items to cart
 module.exports.addItems = async (req, res) => {
-    const customerId = req.params.id;
     const { itemId, quantity } = req.query;
 
     // checking if customer exists or not
-    const customer = await User.findById(customerId);
+    const customer = await User.findOne({ email: req.user.email });
     if(!customer)
         return sendError(res, 'Customer not found', NOT_FOUND);
 
     // check if there is already a session running for customer
-    const session = await CartSession.findOne({ customerId: customerId });
+    const session = await CartSession.findOne({ customerId: customer._id });
 
     // if session is present
     if(session){
@@ -50,7 +49,7 @@ module.exports.addItems = async (req, res) => {
     else{
         // create new session for user
         const session = new CartSession({
-            customerId: customerId,
+            customerId: customer._id,
         });
 
 

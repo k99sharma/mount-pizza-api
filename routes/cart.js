@@ -12,7 +12,7 @@ const {
 } = require('../middlewares/auth');
 
 // POST: route to add items in cart
-router.post('/:id/add', allAuth, cart.addItems);
+router.post('/add', allAuth, cart.addItems);
 
 // GET: route to get items from cart
 

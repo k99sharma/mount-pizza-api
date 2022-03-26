@@ -67,14 +67,14 @@ const createUser = async (req, res) => {
     // set token entry in database
     setToken(String(newUser._id), token);
 
-    return sendSuccess(res, newUser, token);
+    return sendSuccess(res, token);
 }
 
 // GET: cb for get user by id
 const getUserById = async (req, res) => {
-    const userId = req.query.id;
+    const userEmail = req.user.email;
 
-    const user = await User.findById(userId).lean();
+    const user = await User.findOne({email: email}).lean();
 
     // if user is not found
     if (!user)

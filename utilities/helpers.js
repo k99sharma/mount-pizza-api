@@ -44,7 +44,6 @@ module.exports.generateHash = length => {
 const Token = require('../schemas/Token');
 module.exports.setToken = async (userId, token) => {
     const tkn = new Token({
-        userId: userId,
         value: token,
     });
 
@@ -58,8 +57,8 @@ module.exports.setToken = async (userId, token) => {
         })
 }
 
-module.exports.deleteToken = async (userId) => {
-    let tkn = await Token.findOne({ userId: userId }).lean();
+module.exports.deleteToken = async (token) => {
+    let tkn = await Token.findOne({ value: token }).lean();
     if(!tkn){
         return "NOT FOUND";
     }

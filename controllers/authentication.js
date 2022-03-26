@@ -46,7 +46,7 @@ module.exports.login = async (req, res, next) => {
                 );
                 setToken(user._id, newToken);
                 console.log('User is logged in');
-                return sendSuccess(res, user, newToken);
+                return sendSuccess(res, newToken, newToken);
             }
         }
 
@@ -59,20 +59,16 @@ module.exports.login = async (req, res, next) => {
 
 // cb: logout controller
 module.exports.logout = async (req, res, next) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId).lean();
+    const token = req.header('x-auth-token')
 
-    // check if user exists
-    if(!user)
-        return sendError(res, "User not found", NOT_FOUND);
 
     // delete token
-    const tokenStatus = deleteToken(userId);
+    const tokenStatus = deleteToken(token);
 
     // if token is present
     if(tokenStatus !== 'DELETED'){
         console.log('User logged out');
-        return sendSuccess(res, user);
+        return sendSuccess(res, "");
     }else{
         return sendError(res, 'Already LoggedOut. Please Login.', BAD_REQUEST);
     }   

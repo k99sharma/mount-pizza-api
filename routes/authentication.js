@@ -9,6 +9,6 @@ const auth = require('../controllers/authentication');
 router.post('/login', catchErrors(auth.login));
 
 // LOGOUT route
-router.post('/:id/logout', catchErrors(auth.logout));
+router.post('/logout', catchErrors(auth.logout));
 
 module.exports = router;

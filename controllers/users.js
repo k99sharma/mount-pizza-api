@@ -56,18 +56,19 @@ const createUser = async (req, res) => {
     // save new user in database
     newUser = await newUser.save();
 
+    
     // generate token
-    const token = await newUser.generateAuthToken(
-        firstName,
-        lastName,
-        role,
-        email,
-    );
+    // const token = await newUser.generateAuthToken(
+    //     firstName,
+    //     lastName,
+    //     role,
+    //     email,
+    // );
 
     // set token entry in database
-    setToken(String(newUser._id), token);
+    // setToken(String(newUser._id), token);
 
-    return sendSuccess(res, token);
+    return sendSuccess(res, 'Signup Successful');
 }
 
 // GET: cb for get user by id

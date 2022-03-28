@@ -29,4 +29,7 @@ router.put('/:id/update', allAuth, catchErrors(user.updateUser));
 // DELETE: route to delete user data
 router.delete('/:id/delete', allAuth, catchErrors(user.deleteUser));
 
+// PUT: route to make user admin
+router.put('/:id/makeAdmin', adminAuth, catchErrors(user.makeAdmin));
+
 module.exports = router;

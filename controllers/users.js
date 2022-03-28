@@ -129,10 +129,32 @@ const deleteUser = async (req, res) => {
     return sendSuccess(res, user);
 }
 
+const makeAdmin = async (req, res) => {
+    const userId = req.params.id;
+    let user = await User.findById(userId).lean();
+
+    if(!user){
+        return sendError(res, 'User not found', NOT_FOUND);
+    }
+
+    if(user.role === 'ADMIN'){
+        return sendError(res, 'User is already ADMIN', BAD_REQUEST);
+    }
+
+    user = await User.findByIdAndUpdate(userId, {
+        role: 'ADMIN'
+    });
+
+    await user.save();
+
+    sendSuccess(res, 'Role Changed');
+}
+
 module.exports = {
     createUser,
     getUserById,
     getAllUsers,
     updateUser,
     deleteUser,
+    makeAdmin
 }

@@ -23,6 +23,7 @@ router.delete('/clearAll', allAuth, cart.clearAll);
 // PUT: route to update items in cart
 
 // DELETE: route to delete items from cart
+router.delete('/delete', allAuth, cart.deleteItem);
 
 
 module.exports = router;

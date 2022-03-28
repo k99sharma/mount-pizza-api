@@ -9,7 +9,7 @@ const {
 } = require('../utilities/helpers');
 
 // importing status codes
-const { SERVER_ERROR, NOT_FOUND } = require('../utilities/statusCodes');
+const { SERVER_ERROR, NOT_FOUND, BAD_REQUEST } = require('../utilities/statusCodes');
 const User = require('../schemas/User');
 
 
@@ -19,16 +19,27 @@ module.exports.addItems = async (req, res) => {
 
     // checking if customer exists or not
     const customer = await User.findOne({ email: req.user.email });
-    if(!customer)
+    if (!customer)
         return sendError(res, 'Customer not found', NOT_FOUND);
 
     // check if there is already a session running for customer
     const session = await CartSession.findOne({ customerId: customer._id });
 
     // if session is present
-    if(session){
+    if (session) {
         // get the session id
         const sessionId = session._id;
+
+        // if item is already present in cart
+        const isAlreadyPresent = await Cart.findOne({
+            sessionId: sessionId,
+            item: itemId,
+        });
+        if (isAlreadyPresent) {
+            return sendError(res, 'Already Present in cart', BAD_REQUEST);
+        }
+
+
         // create new cart item
         const newCartItem = new Cart({
             sessionId: sessionId,
@@ -38,7 +49,7 @@ module.exports.addItems = async (req, res) => {
 
         // save item
         await newCartItem.save()
-            .then(()=>{
+            .then(() => {
                 console.log('Item in cart saved');
             })
             .catch(err => {
@@ -46,7 +57,7 @@ module.exports.addItems = async (req, res) => {
             })
     }
     // if session is not present
-    else{
+    else {
         // create new session for user
         const session = new CartSession({
             customerId: customer._id,
@@ -55,10 +66,10 @@ module.exports.addItems = async (req, res) => {
 
         // saving newly created session
         await session.save()
-            .then(async (session)=>{
+            .then(async (session) => {
                 // session id
                 const sessionId = session._id;
-                
+
                 // creating new item for this session
                 const newCartItem = new Cart({
                     sessionId: sessionId,
@@ -68,7 +79,7 @@ module.exports.addItems = async (req, res) => {
 
                 // saving item
                 await newCartItem.save()
-                    .then(()=>{
+                    .then(() => {
                         console.log('Item is saved in cart');
                     })
                     .catch(err => {
@@ -85,13 +96,13 @@ module.exports.addItems = async (req, res) => {
 
 // cb: get items from cart
 module.exports.getItems = async (req, res) => {
-    const customer = await User.findOne({email : req.user.email });
-    if(!customer){
+    const customer = await User.findOne({ email: req.user.email });
+    if (!customer) {
         return sendError(res, 'Customer not found', NOT_FOUND);
     }
 
     const customerSession = await CartSession.findOne({ customerId: customer._id });
-    if(!customerSession){
+    if (!customerSession) {
         return sendSuccess(res, []);
     }
 
@@ -103,16 +114,16 @@ module.exports.getItems = async (req, res) => {
 // cb: clear all cart items
 module.exports.clearAll = async (req, res) => {
     const customer = await User.findOne({ email: req.user.email });
-    
+
     // get cart session id
     const cartSession = await CartSession.findOne({ customerId: customer._id });
-    if(!cartSession){
+    if (!cartSession) {
         sendError('Cart Session not found');
     }
 
     // delete all cart items for this session
     const deleteCount = await Cart.deleteMany({ sessionId: cartSession._id });
-    if(deleteCount === 0){
+    if (deleteCount === 0) {
         return sendError(res, 'Cart is not cleared', SERVER_ERROR);
     }
 
@@ -124,3 +135,11 @@ module.exports.clearAll = async (req, res) => {
 // cb: update items in cart
 
 // cb: delete items from cart
+module.exports.deleteItem = async (req, res) => {
+    const { itemId } = req.query;
+    const item = await Cart.findByIdAndRemove(itemId);
+    if (!item) {
+        return sendError(res, 'Item not found', NOT_FOUND);
+    }
+    return sendSuccess(res, 'Item is deleted');
+}

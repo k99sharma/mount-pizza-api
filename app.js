@@ -36,12 +36,13 @@ module.exports = () => {
         console.log = console.warn = console.error = () => {};
 
     // setting up routes
-    app.use('/mountpizza/users', require('./routes/users'));
-    app.use('/mountpizza/items/toppings', require('./routes/Items/toppings'));
-    app.use('/mountpizza/items/pizzas', require('./routes/Items/pizzas'));
-    app.use('/mountpizza/orders', require('./routes/orders'));
-    app.use('/mountpizza/auth', require('./routes/authentication'));
-    app.use('/mountpizza/cart', require('./routes/cart'));
+    app.use('/users', require('./routes/users'));
+    app.use('/items/toppings', require('./routes/Items/toppings'));
+    app.use('/items/pizzas', require('./routes/Items/pizzas'));
+    app.use('/orders', require('./routes/orders'));
+    app.use('/auth', require('./routes/authentication'));
+    app.use('/cart', require('./routes/cart'));
+    app.use('/', require('./routes/test'));
     
     app.use('*', notFound);   // 404 route: NOT FOUND
 

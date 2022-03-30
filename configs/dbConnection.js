@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { SERVER_ERROR } = require('../utilities/statusCodes');
 const { NODE_ENV, MONGO_URI } = require('./index');
 
 // debug mongo

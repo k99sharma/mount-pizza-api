@@ -15,6 +15,10 @@ const pizzaSchema = new Schema({
         ],
         required: true,
     },
+    imageUrl: {
+        type: String,
+        required: true,
+    },
     style: {
         type: String,
         required: true,

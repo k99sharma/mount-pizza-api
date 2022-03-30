@@ -42,7 +42,7 @@ module.exports = () => {
     app.use('/orders', require('./routes/orders'));
     app.use('/auth', require('./routes/authentication'));
     app.use('/cart', require('./routes/cart'));
-    app.use('/', require('./routes/test'));
+    app.use('/test', require('./routes/test'));
     
     app.use('*', notFound);   // 404 route: NOT FOUND
 

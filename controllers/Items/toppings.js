@@ -20,6 +20,7 @@ const createTopping = async (req, res) => {
     const {
         name,
         price,
+        imageUrl,
         category
     } = req.body;
 
@@ -34,6 +35,7 @@ const createTopping = async (req, res) => {
     topping = new Topping({
         name: name,
         price: price,
+        imageUrl: imageUrl,
         category: category,
     });
 

@@ -10,6 +10,10 @@ const toppingSchema = new Schema({
         type: Number,
         required: true,
     },
+    imageUrl: {
+        type: String,
+        required: true,
+    },
     category: {
         type: String,
         enum: ["VEG", "NONVEG"],

@@ -27,6 +27,7 @@ const createPizza = async (req, res) => {
     const {
         name,
         toppings,
+        imageUrl,
         crustType,
     } = req.body;
 
@@ -58,6 +59,7 @@ const createPizza = async (req, res) => {
         name: name,
         toppings: toppings,
         style: "ADMIN",
+        imageUrl: imageUrl,
         price: price,
         crustType: crustType,
     });

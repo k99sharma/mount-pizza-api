@@ -42,7 +42,7 @@ module.exports.generateHash = length => {
 // function to set tokens
 // status: delete, set
 const Token = require('../schemas/Token');
-module.exports.setToken = async (userId, token) => {
+module.exports.setToken = async (token) => {
     const tkn = new Token({
         value: token,
     });
@@ -57,12 +57,11 @@ module.exports.setToken = async (userId, token) => {
         })
 }
 
-module.exports.deleteToken = async (token) => {
+module.exports.checkToken = async (token) => {
     let tkn = await Token.findOne({ value: token }).lean();
-    if(!tkn){
-        return "NOT FOUND";
+    if(tkn){
+        return "FOUND";
     }
 
-    tkn = await Token.findByIdAndDelete(tkn._id);
-    return "DELETED";
+    return "NOT FOUND";
 }

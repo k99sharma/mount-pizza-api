@@ -1,12 +1,12 @@
 // importing schemas
 const User = require('../schemas/User');
-const Token = require('../schemas/Token');
-const { sendError, sendSuccess, setToken, deleteToken } = require('../utilities/helpers');
+const { sendError, sendSuccess, setToken, checkToken } = require('../utilities/helpers');
 const {
     BAD_REQUEST
     , NOT_FOUND,
     FORBIDDEN
 } = require('../utilities/statusCodes');
+
 
 // cb: to login user
 module.exports.login = async (req, res, next) => {
@@ -29,25 +29,16 @@ module.exports.login = async (req, res, next) => {
                 lastLoginAt: new Date(Date.now()).toISOString(),
             })
 
-            // check if there is token available already
-            const token = await Token.findOne({ userId: user._id });
+            // generate new token if expired
+            const newToken = await user.generateAuthToken(
+                user.firstName,
+                user.lastName,
+                user.role,
+                user.email,
+            );
 
-            // if token is found 
-            if (token) {
-                console.log(token);
-                return sendError(res, 'Already loggedIn. Please logout.', FORBIDDEN);
-            } else {
-                // generate new token if expired
-                const newToken = await user.generateAuthToken(
-                    user.firstName,
-                    user.lastName,
-                    user.role,
-                    user.email,
-                );
-                setToken(user._id, newToken);
-                console.log('User is logged in');
-                return sendSuccess(res, newToken, newToken);
-            }
+            console.log('User is logged in');
+            return sendSuccess(res, newToken, newToken);
         }
 
     } else {
@@ -56,20 +47,19 @@ module.exports.login = async (req, res, next) => {
 }
 
 
-
 // cb: logout controller
-module.exports.logout = async (req, res, next) => {
+module.exports.logout = async (req, res) => {
     const token = req.header('x-auth-token')
 
-
     // delete token
-    const tokenStatus = deleteToken(token);
+    const tokenStatus = checkToken(token);
 
     // if token is present
-    if(tokenStatus !== 'DELETED'){
+    if (tokenStatus !== 'NOT FOUND') {
+        setToken(token);
         console.log('User logged out');
         return sendSuccess(res, "");
-    }else{
+    } else {
         return sendError(res, 'Already LoggedOut. Please Login.', BAD_REQUEST);
-    }   
+    }
 }

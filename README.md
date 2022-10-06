@@ -14,6 +14,31 @@
   Mount Pizza API is a REST API based on MVC architecture.  
 </p>
 
+<br />
+
+![160991711-50dcdc64-411d-4ac6-b138-637844164a7f](https://user-images.githubusercontent.com/54969439/194222754-879702ec-a492-45e4-b56f-f467caed5975.png)
+
+<br />
+
+## Tech Stack & Open-source libraries
+- [NodeJs](https://nodejs.dev/en/) and [ExpressJs](https://expressjs.com/) is used to create the API.
+- [JWT](https://jwt.io/) is used for authentication and authorization.
+- [MongoDB](https://www.mongodb.com/) is used as database.
+- [Mongoose](https://mongoosejs.com/) ORM is used to create database schema.
+
+## Features
+
+### User Module
+- User can login and signup which is based on jwt authentication technique.
+- User add and remove pizzas from cart.
+- Total price of items is calculated automatically.
+- User can checkout the order with the help of razorpay payment integration.
+
+### Admin Module
+- Admin can create new pizzas for the system.
+- Admin can add new toppings and set prices.
+- Admin can also provide user an admin privileges.
+
 ## Find this repository userful? :heart:
 Star the repository. 🌟
 <br>Also, __[Follow me](https://github.com/k99sharma)__ on GitHub for my next creations! 😎

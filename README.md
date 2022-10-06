@@ -11,7 +11,7 @@
 </p>
 
 <p align='center'>
-  Mount Pizza API is a REST API based on MVC architecture.  
+  🍕 Mount Pizza API is a REST API based on MVC architecture.  
 </p>
 
 <br />

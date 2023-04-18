@@ -26,6 +26,28 @@
 - [MongoDB](https://www.mongodb.com/) is used as database.
 - [Mongoose](https://mongoosejs.com/) ORM is used to create database schema.
 
+## How to setup locally
+- Clone the github repo
+  ```
+  git clone https://github.com/k99sharma/mount-pizza-api.git
+  ```
+- Move into the directory
+  ```
+  cd mount-pizza-api/
+  ```
+- Install dependecies
+  ```
+  npm install
+  ```
+- Create an environment variable file name `.env`
+- Copy all the keys from `.env.sample` and put it in `.env` and all required values.
+- Run the application
+  ```
+  npm run start
+  ```
+ - Now you are good to go!
+
+
 ## Features
 
 ### User Module
